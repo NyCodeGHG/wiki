@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+  nginx:
+    container_name: nginx
+    image: jwilder/nginx-proxy
+    ports:
+    - 0.0.0.0:80:80
+    - 0.0.0.0:443:443
+    labels:
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
+    networks:
+      - internet
+    restart: always
+    volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+  letsencrypt:
+    container_name: letsencrypt
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    networks:
+      - internet
+    restart: always
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+  wiki:
+    image: ghcr.io/nycodeghg/wiki/wiki:latest
+    container_name: wiki_instance
+    volumes:
+    - data:/app/data
+    environment:
+      VIRTUAL_HOST: wiki.example.com
+      VIRTUAL_PORT: 8080
+      LETSENCRYPT_HOST: wiki.example.com
+      LETSENCRYPT_EMAIL: example@example.com
+
+volumes:
+  data:
+networks:
+  internet:
+    driver: bridge
