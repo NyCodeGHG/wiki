@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+{{template "head" "List Pages"}}
+<body>
+<h1>wiki</h1>
+<p>View Source on <a href="https://github.com/NyCodeGHG/wiki">GitHub</a></p>
+{{if not .}}
+<p>There are no entries. Go ahead and create one!</p>
+{{else}}
+<ol>
+    {{range $page := .}}
+    <li><a href="/view/{{$page.Title}}">{{$page.Title}}</a></li>
+    {{end}}
+</ol>
+{{end}}
+<p></p>
+</body>
+</html>

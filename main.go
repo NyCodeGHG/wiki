@@ -2,17 +2,20 @@ package main
 
 import (
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
+	"sort"
+	"strings"
 )
 
 var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 
-var templates = template.Must(template.ParseFiles("templates/edit.html", "templates/view.html"))
+var templates = template.Must(template.ParseFiles("templates/edit.gohtml", "templates/view.gohtml", "templates/list.gohtml", "templates/base.gohtml"))
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates.ExecuteTemplate(w, tmpl+".html", p)
+	err := templates.ExecuteTemplate(w, tmpl+".gohtml", p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -57,12 +60,46 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 	}
 }
 
+func listHandler(w http.ResponseWriter, r *http.Request) {
+	var pages []*Page
+	dir, _ := ioutil.ReadDir("data")
+
+	// Collect pages
+	for _, file := range dir {
+		fileName := file.Name()
+		if !file.IsDir() && strings.HasSuffix(fileName, ".txt") {
+			page, err := loadPage(fileName[:len(fileName)-4])
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			pages = append(pages, page)
+		}
+	}
+	// Sort pages alphabetically
+	sort.Slice(pages, func(i, j int) bool {
+		switch strings.Compare(pages[i].Title, pages[j].Title) {
+		case -1:
+			return true
+		case 1:
+			return false
+		}
+		return pages[i].Title > pages[j].Title
+	})
+
+	err := templates.ExecuteTemplate(w, "list.gohtml", pages)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func main() {
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editHandler))
 	http.HandleFunc("/save/", makeHandler(saveHandler))
+	http.HandleFunc("/list/", listHandler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		viewHandler(w, r, "FrontPage")
+		http.Redirect(w, r, "/list/", http.StatusFound)
 	})
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
