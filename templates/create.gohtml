@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+{{template "head" "Create a new entry"}}
+<body>
+<h1>Create a new entry</h1>
+<form action="/create/" method="POST">
+    <div><input type="text" placeholder="New Entry" name="entry_name"></div>
+    <div><textarea name="body" rows="20" cols="80"></textarea></div>
+    <div><input type="submit" value="Save"></div>
+</form>
+</body>
+</html>

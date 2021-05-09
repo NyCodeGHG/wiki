@@ -11,6 +11,7 @@ func main() {
 	http.HandleFunc("/edit/", handlers.MakeHandler(handlers.EditHandler))
 	http.HandleFunc("/save/", handlers.MakeHandler(handlers.SaveHandler))
 	http.HandleFunc("/list/", handlers.ListHandler)
+	http.HandleFunc("/create/", handlers.CreateHandler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/list/", http.StatusFound)
 	})
