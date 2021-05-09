@@ -1,4 +1,4 @@
-package main
+package page
 
 import (
 	"io/ioutil"
@@ -10,7 +10,7 @@ type Page struct {
 	Body  []byte
 }
 
-func (p *Page) save() error {
+func (p *Page) Save() error {
 	filename := "data/" + p.Title + ".txt"
 
 	_, err := ioutil.ReadDir("data")
@@ -23,7 +23,7 @@ func (p *Page) save() error {
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
-func loadPage(title string) (*Page, error) {
+func LoadPage(title string) (*Page, error) {
 	filename := "data/" + title + ".txt"
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
