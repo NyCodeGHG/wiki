@@ -12,7 +12,7 @@ import (
 
 var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 
-var templates = template.Must(template.ParseFiles("templates/edit.gohtml", "templates/view.gohtml", "templates/list.gohtml", "templates/base.gohtml"))
+var templates = template.Must(template.ParseGlob("templates/*.gohtml"))
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	err := templates.ExecuteTemplate(w, tmpl+".gohtml", p)
